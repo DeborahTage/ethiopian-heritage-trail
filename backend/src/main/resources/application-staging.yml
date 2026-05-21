@@ -1,0 +1,20 @@
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/heritage_staging}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:postgres}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+
+# Relaxed config for staging
+heritage-trail:
+  security:
+    jwt:
+      secret: ${JWT_SECRET:8f4343928234324f3484f33}
+      expiration-ms: 86400000
+  gps:
+    validation-enabled: false
+    mock-radius: 5000 # Relaxed validation radiuses

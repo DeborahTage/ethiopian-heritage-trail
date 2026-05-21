@@ -1,0 +1,40 @@
+name: Heritage Trail CI/CD
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+      - name: Build and Test with Maven
+        working-directory: ./backend
+        run: ./mvnw -B test
+
+  build-and-deploy:
+    needs: test-backend
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Backend Docker Image
+        working-directory: ./backend
+        run: docker build -t myregistry/heritage-backend:latest .
+
+      - name: Build Dashboard Docker Image
+        working-directory: ./dashboard
+        run: docker build -t myregistry/heritage-dashboard:latest .
+
+      # Use external SSH actions or tools to deploy images mapped in docker-compose.prod.yml
+      # - name: Deploy
+      # ...

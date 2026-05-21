@@ -1,0 +1,7 @@
+# Copy the database migrations into the Spring Boot classpath location
+# This is handled by application.yml: flyway.locations: classpath:db/migration
+# We use a Maven resource copy — add this symlink so Flyway finds migrations at runtime.
+
+# For development, simply run:
+#   cp -r ../database/migrations/* src/main/resources/db/migration/
+# Or mount via docker-compose volume (already configured).

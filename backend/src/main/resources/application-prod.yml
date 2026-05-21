@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://db:5432/heritage}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+
+# Strict environment config
+heritage-trail:
+  security:
+    jwt:
+      secret: ${JWT_SECRET}
+      expiration-ms: 3600000 # 1 hour expires
+  gps:
+    validation-enabled: true

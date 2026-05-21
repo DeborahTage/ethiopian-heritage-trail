@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ethiopian Heritage Trail - Physical Marker</title>
+    <style>
+        /* 20cm x 20cm physically equates to roughly 755px x 755px assuming 96ppi (20cm / 2.54cm/in * 96ppi) */
+        @page {
+            size: 20cm 20cm;
+            margin: 0;
+        }
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 20cm;
+            height: 20cm;
+            background-color: #f9f9f9;
+        }
+        .marker-container {
+            width: 18cm;
+            height: 18cm;
+            border: 4px solid #111827; /* Dark framing */
+            border-radius: 20px;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        .logo-header {
+            position: absolute;
+            top: 1.5cm;
+            font-size: 1.2rem;
+            color: #4b5563;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .landmark-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #111827;
+            text-align: center;
+            margin-bottom: 2cm;
+            margin-top: 1.5cm;
+            padding: 0 1cm;
+        }
+        .qr-placeholder {
+            width: 8cm;
+            height: 8cm;
+            border: 2px dashed #9ca3af;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #9ca3af;
+            background: #f3f4f6;
+            border-radius: 10px;
+        }
+        .qr-placeholder img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 10px;
+        }
+        .footer-text {
+            position: absolute;
+            bottom: 1.5cm;
+            font-size: 1rem;
+            color: #6b7280;
+            text-align: center;
+        }
+        .accent-bar {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 1cm;
+            background: linear-gradient(90deg, #25D366, #3b82f6);
+            border-bottom-left-radius: 16px;
+            border-bottom-right-radius: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="marker-container">
+        <div class="logo-header">Ethiopian Heritage Trail</div>
+        
+        <div class="landmark-title">
+            {{LANDMARK_NAME}}
+            <div style="font-size: 1.5rem; font-weight: normal; color: #4b5563; margin-top: 10px;">{{CATEGORY}}</div>
+        </div>
+
+        <div class="qr-placeholder">
+            <!-- Replace this src dynamically or just use standard placeholder -->
+            <img src="{{QR_CODE_DATA_URI}}" alt="QR Code" />
+        </div>
+
+        <div class="footer-text">
+            Scan with the Heritage Trail Mobile App to earn points!<br/>
+            <strong>+{{POINTS_VALUE}} Points</strong>
+        </div>
+
+        <div class="accent-bar"></div>
+    </div>
+</body>
+</html>

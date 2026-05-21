@@ -1,0 +1,19 @@
+# Environment
+.env
+*.env.local
+
+# Docker volumes / compose override
+docker-compose.override.yml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Logs
+*.log
+logs/

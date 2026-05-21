@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-background text-textPrimary antialiased scroll-smooth;
+  }
+
+  .font-ethiopic {
+    font-family: "Noto Sans Ethiopic", system-ui, sans-serif;
+  }
+}
