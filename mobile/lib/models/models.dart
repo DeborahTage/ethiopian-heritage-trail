@@ -95,6 +95,54 @@ class LandmarkModel {
       );
 }
 
+class AdventurePackageModel {
+  final String id;
+  final String landmarkId;
+  final String landmarkName;
+  final String title;
+  final String? description;
+  final String difficulty;
+  final int durationMinutes;
+  final List<String> activities;
+  final List<String> imageUrls;
+  final int priceUSD;
+  final bool available;
+  final int maxParticipants;
+  final String? guideName;
+
+  const AdventurePackageModel({
+    required this.id,
+    required this.landmarkId,
+    required this.landmarkName,
+    required this.title,
+    this.description,
+    required this.difficulty,
+    required this.durationMinutes,
+    required this.activities,
+    required this.imageUrls,
+    required this.priceUSD,
+    required this.available,
+    required this.maxParticipants,
+    this.guideName,
+  });
+
+  factory AdventurePackageModel.fromJson(Map<String, dynamic> json) => AdventurePackageModel(
+        id:              json['id'] as String,
+        landmarkId:      json['landmarkId'] as String,
+        landmarkName:    json['landmarkName'] as String,
+        title:           json['title'] as String,
+        description:     json['description'] as String?,
+        difficulty:      json['difficulty'] as String? ?? 'moderate',
+        durationMinutes: json['durationMinutes'] as int? ?? 60,
+        activities:      (json['activities'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
+        imageUrls:       (json['imageUrls'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
+        priceUSD:        json['priceUSD'] as int? ?? 0,
+        available:       json['available'] as bool? ?? true,
+        maxParticipants: json['maxParticipants'] as int? ?? 10,
+        guideName:       json['guideName'] as String?,
+      );
+}
+
 class ScanResponse {
   final String visitId;
   final String landmarkId;
