@@ -48,7 +48,7 @@ class ApiService {
     ));
   }
 
-  // ─── Auth ────────────────────────────────────────────────────────────────
+  // ─── Auth ──────────────────────────────────────────────────────────[...]
 
   Future<AuthResponse> register(String email, String password, String displayName) async {
     final res = await _dio.post('/auth/register', data: {
@@ -75,7 +75,7 @@ class ApiService {
     await _storage.deleteAll();
   }
 
-  // ─── Landmarks ───────────────────────────────────────────────────────────
+  // ─── Landmarks ─────────────────────────────────────────────────────────[...]
 
   Future<List<LandmarkModel>> getLandmarks() async {
     try {
@@ -124,7 +124,42 @@ class ApiService {
     }
   }
 
-  // ─── Visit / Scan ─────────────────────────────────────────────────────────
+  Future<AdventurePackageModel?> getLandmarkPackage(String landmarkId) async {
+    final cacheBox = Hive.box('landmark_contents');
+    final connectivity = await Connectivity().checkConnectivity();
+    final offline = connectivity.every((result) => result == ConnectivityResult.none);
+    
+    try {
+      final res = await _dio.get('/landmarks/$landmarkId/package');
+      if (res.statusCode == 404 || res.data == null) {
+        return null; // Site has no package
+      }
+      final package = AdventurePackageModel.fromJson(res.data as Map<String, dynamic>);
+      await cacheBox.put('package_$landmarkId', jsonEncode(res.data));
+      return package;
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 404) {
+        return null; // No package for this site
+      }
+      // Try to use cached data if available
+      if (offline) {
+        final cached = cacheBox.get('package_$landmarkId');
+        if (cached != null) {
+          return AdventurePackageModel.fromJson(jsonDecode(cached as String) as Map<String, dynamic>);
+        }
+      }
+      rethrow;
+    } catch (_) {
+      // Try cache fallback
+      final cached = cacheBox.get('package_$landmarkId');
+      if (cached != null) {
+        return AdventurePackageModel.fromJson(jsonDecode(cached as String) as Map<String, dynamic>);
+      }
+      rethrow;
+    }
+  }
+
+  // ─── Visit / Scan ───────────────────────────────────────────────────────[...]
 
   Future<ScanResponse> claimVisit({
     required String qrPayload,
@@ -141,7 +176,7 @@ class ApiService {
     return ScanResponse.fromJson(res.data as Map<String, dynamic>);
   }
 
-  // ─── Passport ─────────────────────────────────────────────────────────────
+  // ─── Passport ─────────────────────────────────────────────────────────[...]
 
   Future<PassportModel> getPassport() async {
     try {
@@ -160,7 +195,7 @@ class ApiService {
     }
   }
 
-  // ─── Helpers ──────────────────────────────────────────────────────────────
+  // ─── Helpers ─────────────────────────────────────────────────────────[...]
 
   Future<void> _saveTokens(String access, String refresh) async {
     await _storage.write(key: _tokenKey,   value: access);
