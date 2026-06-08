@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../blocs/passport/passport_bloc.dart';
 import '../../blocs/passport/passport_state.dart';
 import '../../models/models.dart';
@@ -23,10 +24,47 @@ class PassportScreen extends StatefulWidget {
 
 class _PassportScreenState extends State<PassportScreen> {
   final GlobalKey _globalKey = GlobalKey();
+  String? _profileImagePath;
+  final ImagePicker _imagePicker = ImagePicker();
+
   @override
   void initState() {
     super.initState();
     context.read<PassportBloc>().add(LoadPassport());
+    _loadProfileImage();
+  }
+
+  Future<void> _loadProfileImage() async {
+    try {
+      final box = Hive.box('cached_rewards');
+      final imagePath = box.get('profile_image_path');
+      if (imagePath != null && File(imagePath as String).existsSync()) {
+        setState(() => _profileImagePath = imagePath);
+      }
+    } catch (e) {
+      debugPrint('Error loading profile image: $e');
+    }
+  }
+
+  Future<void> _pickProfileImage() async {
+    try {
+      final pickedFile = await _imagePicker.pickImage(source: ImageSource.gallery);
+      if (pickedFile == null) return;
+
+      final box = Hive.box('cached_rewards');
+      await box.put('profile_image_path', pickedFile.path);
+
+      if (mounted) {
+        setState(() => _profileImagePath = pickedFile.path);
+      }
+    } catch (e) {
+      debugPrint('Error picking image: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to select image: $e')),
+        );
+      }
+    }
   }
 
   Future<void> _shareCollage() async {
@@ -92,8 +130,12 @@ class _PassportScreenState extends State<PassportScreen> {
                    child: Column(
                      crossAxisAlignment: CrossAxisAlignment.start,
                      children: [
-                       // Profile card
-                       _ProfileCard(passport: passport),
+                       // Profile card with image picker
+                       _ProfileCard(
+                         passport: passport,
+                         profileImagePath: _profileImagePath,
+                         onTapProfilePicture: _pickProfileImage,
+                       ),
                        const SizedBox(height: 16),
          
                        // Progress card
@@ -148,7 +190,14 @@ class _PassportScreenState extends State<PassportScreen> {
 
 class _ProfileCard extends StatelessWidget {
   final PassportModel passport;
-  const _ProfileCard({required this.passport});
+  final String? profileImagePath;
+  final VoidCallback onTapProfilePicture;
+
+  const _ProfileCard({
+    required this.passport,
+    this.profileImagePath,
+    required this.onTapProfilePicture,
+  });
 
   @override
   Widget build(BuildContext context) => Container(
@@ -162,10 +211,37 @@ class _ProfileCard extends StatelessWidget {
     ),
     child: Row(
       children: [
-        CircleAvatar(
-          radius: 32, backgroundColor: AppColors.secondary.withOpacity(0.2),
-          child: Text(passport.displayName[0].toUpperCase(),
-              style: const TextStyle(color: AppColors.secondary, fontSize: 26, fontWeight: FontWeight.w700)),
+        GestureDetector(
+          onTap: onTapProfilePicture,
+          child: Stack(
+            children: [
+              CircleAvatar(
+                radius: 32,
+                backgroundColor: AppColors.secondary.withOpacity(0.2),
+                backgroundImage: profileImagePath != null && File(profileImagePath!).existsSync()
+                    ? FileImage(File(profileImagePath!))
+                    : null,
+                child: profileImagePath == null || !File(profileImagePath!).existsSync()
+                    ? Text(
+                        passport.displayName[0].toUpperCase(),
+                        style: const TextStyle(color: AppColors.secondary, fontSize: 26, fontWeight: FontWeight.w700),
+                      )
+                    : null,
+              ),
+              Positioned(
+                bottom: 0,
+                right: 0,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: AppColors.secondary,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.camera, size: 14, color: Colors.white),
+                ),
+              ),
+            ],
+          ),
         ),
         const SizedBox(width: 16),
         Expanded(
